@@ -1,0 +1,25 @@
+---
+{% raw %}
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  pre-commit:
+    name: "pre-commit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Do not ignore pre-commit failures on PRs"
+        if: github.event_name != 'merge_group'
+        run: echo "IGNORE_FAILURE=false" >> $GITHUB_ENV
+        shell: bash
+      - name: "Ignore pre-commit failures on gh merge queues"
+        if: github.event_name == 'merge_group'
+        run: echo "IGNORE_FAILURE=true" >> $GITHUB_ENV
+        shell: bash
+
+      - uses: SonarSource/gh-action_pre-commit@dfd365240ac6bc71b9912ff8f231a7543214f1b2 # 0.0.2
+        with:
+          extra-args: --from-ref=origin/${{ github.event.pull_request.base.ref }} --to-ref=${{ github.event.pull_request.head.sha }}
+          ignore-failure: ${{ env.IGNORE_FAILURE }}
+  {% endraw %}

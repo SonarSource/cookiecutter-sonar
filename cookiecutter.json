@@ -1,0 +1,9 @@
+{
+  "repository_name": "A repository",
+  "repository_description": "A short description",
+  "repository_visibility": "private",
+  "owner_team": "a-team-slug",
+  "use_cirrus_ci": "no",
+  "use_release": "no",
+  "use_pre_commit": "no"
+}
