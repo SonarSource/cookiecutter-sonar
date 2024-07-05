@@ -34,6 +34,7 @@ def use_pre_commit():
     if _use_pre_commit != 'yes':
         os.remove(os.path.join(PROJECT_DIRECTORY, '.github', 'workflows', 'pre-commit.yml'))
         os.remove(os.path.join(PROJECT_DIRECTORY, '.pre-commit-config.yaml'))
+        os.remove(os.path.join(PROJECT_DIRECTORY, '.markdownlint.yaml'))
 
 
 def main():

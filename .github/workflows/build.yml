@@ -1,0 +1,53 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: Build
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install poetry
+        run: pipx install poetry==1.5.1
+      - name: Set up Python 3.10
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        with:
+          python-version: "3.10"
+          cache: 'poetry'
+      - uses: SonarSource/vault-action-wrapper@3996073b47b49ac5c58c750d27ab4edf469401c8 # 3.0.1
+        with:
+          secrets: |
+            development/kv/data/next token | sq_next_token;
+            development/kv/data/next url | sq_next_url;
+            development/kv/data/repox artifactory_url | repox_artifactory_url;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader username | ARTIFACTORY_USERNAME;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Build
+        env:
+          REPOX_ARTIFACTORY_URL: ${{ fromJSON(steps.secrets.outputs.vault).repox_artifactory_url }}
+          POETRY_HTTP_BASIC_REPOX_USERNAME: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_USERNAME }}
+          POETRY_HTTP_BASIC_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          poetry source add repox $REPOX_ARTIFACTORY_URL/api/pypi/sonarsource-pypi/simple
+          poetry install
+          poetry run pytest --cov-report=xml:coverage.xml --cov-config=pyproject.toml --cov=hooks --cov-branch tests
+      - name: Override Coverage Source Path
+        run: |
+          sed -i "s|<source>${GITHUB_WORKSPACE}|<source>/github/workspace|g" "${GITHUB_WORKSPACE}/build/coverage.xml"
+      - name: SonarQube Next Scan
+        uses: sonarsource/sonarqube-scan-action@aecaf43ae57e412bd97d70ef9ce6076e672fe0a9 # v2.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_token }}
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_url }}

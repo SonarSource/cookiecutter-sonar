@@ -27,7 +27,7 @@ def test_customization(cookies):
     assert result.exception is None
     assert result.project.basename == 'Test repository'
     assert result.project.isdir()
-    assert len(result.project.listdir()) == 6
+    assert len(result.project.listdir()) == 7
     assert "test-team" in result.project.join('.github', 'CODEOWNERS').read()
     assert "Test description" in result.project.join('README.md').read()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in result.project.join('LICENSE').read()
