@@ -22,4 +22,5 @@ jobs:
         with:
           extra-args: --from-ref=origin/${{ github.event.pull_request.base.ref }} --to-ref=${{ github.event.pull_request.head.sha }}
           ignore-failure: ${{ env.IGNORE_FAILURE }}
-  {% endraw %}
+
+{% endraw %}
