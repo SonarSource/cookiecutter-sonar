@@ -24,12 +24,13 @@ coverage = {extras = ["toml"], version = "^6.5.0"}
 pytest-mock = "^3.11.1"
 
 [tool.pytest.ini_options]
-log_cli = false
+log_cli = true
 minversion = "6.0"
 addopts = """
   --cov-report html:build/coverage-html
   --cov-report xml:build/coverage.xml
   --cov-report term
-  --cov=cookiecutter_sonar
+  --cov=hooks
+  --cov-branch
 """
 testpaths = ["tests"]

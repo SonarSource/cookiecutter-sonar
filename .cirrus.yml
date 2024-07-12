@@ -1,0 +1,54 @@
+env:
+  CIRRUS_SHELL: bash
+  ARTIFACTORY_URL: VAULT[development/kv/data/repox data.artifactory_url]
+  $ARTIFACTORY_PRIVATE_ACCESS_USERNAME: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader username]
+  ARTIFACTORY_PRIVATE_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  POETRY_VIRTUALENVS_PATH: ".cache/poetry/venvs"
+  POETRY_CACHE_DIR: ".cache/poetry/pypoetry"
+  SONAR_URL: VAULT[development/kv/data/next data.url]
+  SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+
+container_definition: &CONTAINER_DEFINITION
+  dockerfile: .cirrus/Dockerfile
+  cluster_name: ${CIRRUS_CLUSTER_NAME}
+  region: eu-central-1
+  namespace: default
+  builder_role: cirrus-builder
+  builder_image: docker-builder-v*
+  builder_instance_type: t3.small
+  use_in_memory_disk: true
+  docker_arguments:
+    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  cpu: 1
+  memory: 1G
+
+poetry_cache_template: &POETRY_CACHE
+  poetry_cache:
+    folder: .cache/poetry/
+    fingerprint_script: cat poetry.lock
+
+.poetry_template: &POETRY_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+  <<: *POETRY_CACHE
+  poetry_install_script: |
+    eval $(mise activate bash --shims)
+    source set_poetry_build_version "$CI_BUILD_NUMBER"
+    echo "PROJECT_VERSION=$PROJECT_VERSION" >> $CIRRUS_ENV
+    jfrog config add repox --artifactory-url "$ARTIFACTORY_URL" --access-token "$ARTIFACTORY_PRIVATE_ACCESS_TOKEN"
+    jfrog poetry-config --server-id-resolve repox --repo-resolve sonarsource-pypi
+    jfrog poetry install --build-name="$CIRRUS_REPO_NAME" --build-number="$CI_BUILD_NUMBER"
+
+build_task:
+  <<: *POETRY_TEMPLATE
+  build_script: |
+    eval $(mise activate bash --shims)
+    poetry run pytest
+    # poetry run pytest --cov-report=xml:coverage.xml --cov-config=pyproject.toml --cov=hooks --cov-branch
+  sonar_analysis_script: |
+    git fetch origin $CIRRUS_BASE_BRANCH
+    # mkdir -p coverage/coverage_data
+    # sed "s|/tmp/cirrus-ci-build/src/|src/|g" coverage/sonarqube.xml > coverage/coverage_data/sonar_coverage.xml
+    /opt/sonar-scanner-cli/bin/sonar-scanner -X \
+      -Dsonar.host.url=${SONAR_URL} \
+      -Dsonar.token=${SONAR_TOKEN}
