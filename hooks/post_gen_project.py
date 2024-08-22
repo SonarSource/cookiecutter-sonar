@@ -4,6 +4,10 @@ import shutil
 
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 
+def set_security():
+    visibility = '{{ cookiecutter.repository_visibility }}'
+    if visibility == "public":
+        os.remove(os.path.join(PROJECT_DIRECTORY, 'SECURITY.md'))
 
 def set_license():
     visibility = '{{ cookiecutter.repository_visibility }}'
@@ -38,6 +42,7 @@ def use_pre_commit():
 
 
 def main():
+    set_security()
     set_license()
     use_cirrus_ci()
     use_release()
