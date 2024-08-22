@@ -9,7 +9,7 @@ def test_defaults(cookies):
     project_path: pathlib.Path = result.project_path
     assert project_path.name == 'A repository'
     assert project_path.is_dir()
-    assert len(list(project_path.iterdir())) == 3
+    assert len(list(project_path.iterdir())) == 4
     assert project_path.joinpath('README.md').is_file()
     assert project_path.joinpath('LICENSE').is_file()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
