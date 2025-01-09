@@ -23,3 +23,4 @@ COPY ../.tool-versions /home/sonarsource/
 RUN echo 'eval "$(mise activate bash --shims)"' >> ~/.bashrc && \
     eval "$(mise activate bash --shims)" && \
     mise use -g python && \
+    mise --yes install
