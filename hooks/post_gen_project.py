@@ -19,19 +19,16 @@ def set_license():
         raise ValueError(f"Invalid repository visibility: {visibility}")
     shutil.rmtree(os.path.join(PROJECT_DIRECTORY, 'licenses'))
 
-
 def use_cirrus_ci():
     _use_cirrus_ci = '{{ cookiecutter.use_cirrus_ci }}'
     if _use_cirrus_ci != 'yes':
         os.remove(os.path.join(PROJECT_DIRECTORY, '.cirrus.yml'))
         os.remove(os.path.join(PROJECT_DIRECTORY, '.cirrus.star'))
 
-
 def use_release():
     _use_release = '{{ cookiecutter.use_release }}'
     if _use_release != 'yes':
         os.remove(os.path.join(PROJECT_DIRECTORY, '.github', 'workflows', 'release.yml'))
-
 
 def use_pre_commit():
     _use_pre_commit = '{{ cookiecutter.use_pre_commit }}'
@@ -40,14 +37,12 @@ def use_pre_commit():
         os.remove(os.path.join(PROJECT_DIRECTORY, '.pre-commit-config.yaml'))
         os.remove(os.path.join(PROJECT_DIRECTORY, '.markdownlint.yaml'))
 
-
 def main():
     set_security()
     set_license()
     use_cirrus_ci()
     use_release()
     use_pre_commit()
-
 
 if __name__ == "__main__":
     main()

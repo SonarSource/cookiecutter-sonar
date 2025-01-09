@@ -1,6 +1,5 @@
 import pathlib
 
-
 def test_defaults(cookies):
     result = cookies.bake()
 
@@ -14,7 +13,6 @@ def test_defaults(cookies):
     assert project_path.joinpath('LICENSE').is_file()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
     assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 0
-
 
 def test_customization(cookies):
     result = cookies.bake(extra_context={
