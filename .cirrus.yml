@@ -19,8 +19,8 @@ container_definition: &CONTAINER_DEFINITION
   use_in_memory_disk: true
   docker_arguments:
     CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-  cpu: 1
-  memory: 1G
+  cpu: 4
+  memory: 8G
 
 poetry_cache_template: &POETRY_CACHE
   poetry_cache:
@@ -33,6 +33,7 @@ poetry_cache_template: &POETRY_CACHE
   <<: *POETRY_CACHE
   poetry_install_script: |
     eval $(mise activate bash --shims)
+    mise install
     source set_poetry_build_version "$CI_BUILD_NUMBER"
     echo "PROJECT_VERSION=$PROJECT_VERSION" >> $CIRRUS_ENV
     jfrog config add repox --artifactory-url "$ARTIFACTORY_URL" --access-token "$ARTIFACTORY_PRIVATE_ACCESS_TOKEN"
