@@ -7,7 +7,7 @@ on:
 jobs:
   sonarcloud:
     name: Build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-large
     permissions:
       id-token: write
       contents: read
