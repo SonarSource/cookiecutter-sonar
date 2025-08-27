@@ -3,6 +3,7 @@ import os
 import shutil
 
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
+GITHUB_WORKFLOWS_DIR = os.path.join(PROJECT_DIRECTORY, '.github', 'workflows')
 
 def set_security():
     visibility = '{{ cookiecutter.repository_visibility }}'
@@ -19,28 +20,28 @@ def set_license():
         raise ValueError(f"Invalid repository visibility: {visibility}")
     shutil.rmtree(os.path.join(PROJECT_DIRECTORY, 'licenses'))
 
-def use_cirrus_ci():
-    _use_cirrus_ci = '{{ cookiecutter.use_cirrus_ci }}'
-    if _use_cirrus_ci != 'yes':
-        os.remove(os.path.join(PROJECT_DIRECTORY, '.cirrus.yml'))
-        os.remove(os.path.join(PROJECT_DIRECTORY, '.cirrus.star'))
+def use_github_actions_ci():
+    _use_github_actions_ci = '{{ cookiecutter.use_github_actions_ci }}'
+    if _use_github_actions_ci != 'yes':
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'build.yml'))
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'pr-cleanup.yml'))
 
 def use_release():
     _use_release = '{{ cookiecutter.use_release }}'
     if _use_release != 'yes':
-        os.remove(os.path.join(PROJECT_DIRECTORY, '.github', 'workflows', 'release.yml'))
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'release.yml'))
 
 def use_pre_commit():
     _use_pre_commit = '{{ cookiecutter.use_pre_commit }}'
     if _use_pre_commit != 'yes':
-        os.remove(os.path.join(PROJECT_DIRECTORY, '.github', 'workflows', 'pre-commit.yml'))
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'pre-commit.yml'))
         os.remove(os.path.join(PROJECT_DIRECTORY, '.pre-commit-config.yaml'))
         os.remove(os.path.join(PROJECT_DIRECTORY, '.markdownlint.yaml'))
 
 def main():
     set_security()
     set_license()
-    use_cirrus_ci()
+    use_github_actions_ci()
     use_release()
     use_pre_commit()
 
