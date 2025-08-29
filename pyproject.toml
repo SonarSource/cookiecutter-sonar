@@ -10,7 +10,7 @@ license = "SonarSource SA"
 [[tool.poetry.source]]
 name = "repox"
 url = "https://repox.jfrog.io/artifactory/api/pypi/sonarsource-pypi/simple"
-priority = "default"
+priority = "primary"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -34,3 +34,15 @@ addopts = """
   --cov-branch
 """
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["hooks"]
+concurrency = ["multiprocessing", "thread"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError"
+]
