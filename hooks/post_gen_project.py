@@ -25,6 +25,7 @@ def use_github_actions_ci():
     if _use_github_actions_ci != 'yes':
         os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'build.yml'))
         os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'pr-cleanup.yml'))
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'unified-dogfooding.yml'))
 
 def use_release():
     _use_release = '{{ cookiecutter.use_release }}'

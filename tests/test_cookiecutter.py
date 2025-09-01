@@ -12,7 +12,8 @@ def test_defaults(cookies):
     assert project_path.joinpath('README.md').is_file()
     assert project_path.joinpath('LICENSE').is_file()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
-    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 2
+    # GitHub Actions CI enabled by default: build.yml, pr-cleanup.yml, unified-dogfooding.yml = 3 files
+    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 3
 
 def test_customization(cookies):
     result = cookies.bake(extra_context={
@@ -34,8 +35,8 @@ def test_customization(cookies):
     assert "test-team" in project_path.joinpath('.github', 'CODEOWNERS').read_text()
     assert "Test description" in project_path.joinpath('README.md').read_text()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in project_path.joinpath('LICENSE').read_text()
-    # When all options enabled: build.yml, pr-cleanup.yml, pre-commit.yml, release.yml = 4 files
-    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 4
+    # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml = 5 files
+    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 5
 
 def test_no_github_actions_ci(cookies):
     result = cookies.bake(extra_context={
@@ -224,11 +225,14 @@ def test_new_code_lines_directly():
             # Create files for the NEW function to remove
             build_yml = os.path.join(workflows_dir, 'build.yml')
             cleanup_yml = os.path.join(workflows_dir, 'pr-cleanup.yml')
+            dogfooding_yml = os.path.join(workflows_dir, 'unified-dogfooding.yml')
 
             with open(build_yml, 'w') as f:
                 f.write('build content')
             with open(cleanup_yml, 'w') as f:
                 f.write('cleanup content')
+            with open(dogfooding_yml, 'w') as f:
+                f.write('dogfooding content')
 
             # Update module constants to use test directory (covers Line 1: GITHUB_WORKFLOWS_DIR)
             post_gen_project.PROJECT_DIRECTORY = temp_dir
@@ -261,6 +265,7 @@ def test_new_code_lines_directly():
             # Verify NEW code executed
             assert not os.path.exists(build_yml)
             assert not os.path.exists(cleanup_yml)
+            assert not os.path.exists(dogfooding_yml)
 
             # Test NEW constant (Line 1)
             assert '.github/workflows' in test_post_gen_project.GITHUB_WORKFLOWS_DIR
