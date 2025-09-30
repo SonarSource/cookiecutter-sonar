@@ -32,7 +32,7 @@ jobs:
             ~/.cache/pypoetry
             .venv
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - uses: SonarSource/vault-action-wrapper@d6d745ffdbc82b040df839b903bc33b5592cd6b0 # 3.0.2
+      - uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # 3.1.0
         id: secrets
         with:
           secrets: |
