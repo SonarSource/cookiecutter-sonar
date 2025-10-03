@@ -1,0 +1,15 @@
+name: Cloud checks
+on:
+  pull_request:
+    types:
+      [opened, synchronize, reopened]
+
+permissions:
+  checks: write
+  id-token: write
+  contents: read
+
+jobs:
+  run-cloud-checks:
+    name: Run Cloud Checks
+    uses: SonarSource/sonarqube-cloud-github-actions/.github/workflows/cloud-checks.yml@master
