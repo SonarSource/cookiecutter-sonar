@@ -22,6 +22,7 @@ def test_customization(cookies):
         "repository_visibility": "public",
         "owner_team": "test-team",
         "use_github_actions_ci": "yes",
+        "use_github_actions_cloudchecks": "yes",
         "use_release": "yes",
         "use_pre_commit": "yes"
     })
@@ -35,8 +36,8 @@ def test_customization(cookies):
     assert "test-team" in project_path.joinpath('.github', 'CODEOWNERS').read_text()
     assert "Test description" in project_path.joinpath('README.md').read_text()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in project_path.joinpath('LICENSE').read_text()
-    # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml = 5 files
-    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 5
+    # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml, cloud-checks = 6 files
+    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 6
 
 def test_no_github_actions_ci(cookies):
     result = cookies.bake(extra_context={

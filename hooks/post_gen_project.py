@@ -48,6 +48,7 @@ def main():
     set_security()
     set_license()
     use_github_actions_ci()
+    use_github_actions_cloudchecks()
     use_release()
     use_pre_commit()
 
