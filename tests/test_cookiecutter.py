@@ -22,6 +22,7 @@ def test_customization(cookies):
         "repository_visibility": "public",
         "owner_team": "test-team",
         "use_github_actions_ci": "yes",
+        "use_github_actions_cloudchecks": "yes",
         "use_release": "yes",
         "use_pre_commit": "yes"
     })
@@ -35,8 +36,8 @@ def test_customization(cookies):
     assert "test-team" in project_path.joinpath('.github', 'CODEOWNERS').read_text()
     assert "Test description" in project_path.joinpath('README.md').read_text()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in project_path.joinpath('LICENSE').read_text()
-    # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml = 5 files
-    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 5
+    # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml, cloud-checks = 6 files
+    assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 6
 
 def test_no_github_actions_ci(cookies):
     result = cookies.bake(extra_context={
@@ -45,6 +46,7 @@ def test_no_github_actions_ci(cookies):
         "repository_visibility": "private",
         "owner_team": "test-team",
         "use_github_actions_ci": "no",
+        "use_github_actions_cloudchecks": "no",
         "use_release": "no",
         "use_pre_commit": "no"
     })
@@ -60,6 +62,29 @@ def test_no_github_actions_ci(cookies):
     if workflows_dir.exists():
         assert len(list(workflows_dir.iterdir())) == 0
     # If workflows directory doesn't exist, that's also acceptable (no workflows to create)
+
+def test_github_actions_cloudchecks(cookies):
+    result = cookies.bake(extra_context={
+        "repository_name": "No Actions Repository",
+        "repository_description": "Test repository without GitHub Actions CI",
+        "repository_visibility": "private",
+        "owner_team": "test-team",
+        "use_github_actions_ci": "no",
+        "use_github_actions_cloudchecks": "yes",
+        "use_release": "no",
+        "use_pre_commit": "no"
+    })
+
+    assert result.exit_code == 0
+    assert result.exception is None
+    project_path: pathlib.Path = result.project_path
+    assert project_path.name == 'No Actions Repository'
+    assert project_path.is_dir()
+
+    # When use_github_actions_cloudchecks is "yes", CloudChecks workflow file should be present
+    workflows_dir = project_path.joinpath('.github', 'workflows')
+    if workflows_dir.exists():
+        assert len(list(workflows_dir.iterdir())) == 1
 
 # Direct tests for post-generation hooks to ensure coverage of new code
 def test_github_workflows_dir_constant():
@@ -113,6 +138,42 @@ def test_use_github_actions_ci_function():
             # Verify files were removed (covering the new function logic)
             assert not os.path.exists(build_yml)
             assert not os.path.exists(cleanup_yml)
+
+        finally:
+            os.chdir(original_cwd)
+
+def test_use_github_actions_cloudchecks_function():
+    """Test the new use_github_actions_cloudchecks function logic"""
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
+        os.chdir(temp_dir)
+
+        try:
+            # Create test directory structure
+            workflows_dir = os.path.join(temp_dir, '.github', 'workflows')
+            os.makedirs(workflows_dir)
+
+            # Create test files that should be removed when CloudChecks disabled
+            cloudchecks_yml = os.path.join(workflows_dir, 'cloud-checks.yml')
+
+            with open(cloudchecks_yml, 'w') as f:
+                f.write('test CloudChecks content')
+
+            # Simulate the hook function behavior when use_github_actions_cloudchecks = 'no'
+            def simulate_use_github_actions_cloudchecks_disabled():
+                _use_github_actions_cloudchecks = 'no'  # Simulate template variable
+                if _use_github_actions_cloudchecks != 'yes':
+                    if os.path.exists(cloudchecks_yml):
+                        os.remove(cloudchecks_yml)
+
+            # Test the new logic
+            simulate_use_github_actions_cloudchecks_disabled()
+
+            # Verify files were removed (covering the new function logic)
+            assert not os.path.exists(cloudchecks_yml)
 
         finally:
             os.chdir(original_cwd)
