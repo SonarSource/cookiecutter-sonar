@@ -4,6 +4,7 @@
   "repository_visibility": "private",
   "owner_team": "a-team-slug",
   "use_github_actions_ci": "yes",
+  "use_github_actions_cloudchecks": "no",
   "use_release": "no",
   "use_pre_commit": "no"
 }
