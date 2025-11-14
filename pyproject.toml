@@ -5,7 +5,7 @@ description = "Sonar repository template powered by Cookiecutter"
 authors = [
   "Julien Carsique <julien.carsique@sonarsource.com>",
 ]
-license = "SonarSource SA"
+license = "SonarSource Sàrl"
 
 [[tool.poetry.source]]
 name = "repox"
