@@ -27,6 +27,11 @@ def use_github_actions_ci():
         os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'pr-cleanup.yml'))
         os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'unified-dogfooding.yml'))
 
+def use_github_actions_cloudchecks():
+    _use_github_actions_cloudchecks = '{{ cookiecutter.use_github_actions_cloudchecks }}'
+    if _use_github_actions_cloudchecks != 'yes':
+        os.remove(os.path.join(GITHUB_WORKFLOWS_DIR, 'cloud-checks.yml'))
+
 def use_release():
     _use_release = '{{ cookiecutter.use_release }}'
     if _use_release != 'yes':
@@ -43,6 +48,7 @@ def main():
     set_security()
     set_license()
     use_github_actions_ci()
+    use_github_actions_cloudchecks()
     use_release()
     use_pre_commit()
 
