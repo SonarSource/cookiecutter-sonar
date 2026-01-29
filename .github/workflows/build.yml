@@ -18,7 +18,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Mise
@@ -51,7 +51,7 @@ jobs:
           poetry install
           poetry run pytest --cov-report=xml:coverage.xml --cov-config=pyproject.toml --cov=hooks --cov-branch tests
       - name: SonarQube Next Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_token }}
