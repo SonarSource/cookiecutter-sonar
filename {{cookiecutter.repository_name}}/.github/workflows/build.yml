@@ -42,7 +42,7 @@ jobs:
       # and production-ready implementations, visit:
       # https://github.com/SonarSource/ci-github-actions
       #
-      # For caching, use SonarSource/ci-github-actions/cache@v1
+      # For caching, use SonarSource/gh-action_cache@v1
       # It automatically chooses GitHub Actions cache (public) or S3 cache (private)
       #
       # Real-world reference repositories:
