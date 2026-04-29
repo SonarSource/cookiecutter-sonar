@@ -22,17 +22,17 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Mise
-        uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+        uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
           version: 2026.1.9
       - name: Cache Poetry dependencies
-        uses: SonarSource/ci-github-actions/cache@master
+        uses: SonarSource/ci-github-actions/cache@79c5cbacca6d5367cf04de35c1d8c0c60476ed0c # master
         with:
           path: |
             ~/.cache/pypoetry
             .venv
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - uses: SonarSource/vault-action-wrapper@320bd31b03e5dacaac6be51bbbb15adf7caccc32 # 3.1.0
+      - uses: SonarSource/vault-action-wrapper@c154b4a417b51cb98dd71137f49bf20e77c56820 # 3.4.0
         id: secrets
         with:
           secrets: |
@@ -51,7 +51,7 @@ jobs:
           poetry install
           poetry run pytest --cov-report=xml:coverage.xml --cov-config=pyproject.toml --cov=hooks --cov-branch tests
       - name: SonarQube Next Scan
-        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7
+        uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_token }}
