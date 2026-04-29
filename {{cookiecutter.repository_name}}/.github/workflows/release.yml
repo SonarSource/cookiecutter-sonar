@@ -13,4 +13,4 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@f610ee562da0eb743c378afb819f6bfb39e812cf # 6.2.1
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@f8fc75de307f2547eec9bf9e2628bf67080a3414 # 6.8.1
