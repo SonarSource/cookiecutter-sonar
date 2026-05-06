@@ -1,16 +1,19 @@
 ---
 name: Release
+# yamllint disable-line rule:truthy
 on:
-  release:
-    types:
-      - published
-
-env:
-  PYTHONUNBUFFERED: 1
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        type: string
 
 jobs:
   release:
     permissions:
       id-token: write
       contents: write
-    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@f610ee562da0eb743c378afb819f6bfb39e812cf # 6.2.1
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v7
+    with:
+      version: ${{ inputs.version }}
