@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Mise
-        uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
           version: 2026.1.9
       - name: Cache Poetry dependencies
@@ -51,7 +51,7 @@ jobs:
           poetry install
           poetry run pytest --cov-report=xml:coverage.xml --cov-config=pyproject.toml --cov=hooks --cov-branch tests
       - name: SonarQube Next Scan
-        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sq_next_token }}
