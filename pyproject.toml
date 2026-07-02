@@ -15,7 +15,8 @@ priority = "primary"
 [tool.poetry.dependencies]
 python = "^3.10"
 pytest-cookies = "^0.7.0"
-urllib3 = "^2.6.3"
+urllib3 = "^2.7.0"
+requests = "^2.34.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.0.0"
