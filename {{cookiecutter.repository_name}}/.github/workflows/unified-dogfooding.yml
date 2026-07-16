@@ -27,14 +27,7 @@ on:
 
 jobs:
   build:
-    # Runner selection based on repository visibility:
-    # - Private/internal repositories: sonar-xs
-    # - Public repositories: github-ubuntu-latest-s
-    {% if cookiecutter.repository_visibility == "public" -%}
-    runs-on: github-ubuntu-latest-s
-    {% else -%}
     runs-on: sonar-xs
-    {% endif -%}
     name: Build
     permissions:
       id-token: write

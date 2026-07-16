@@ -15,14 +15,9 @@ concurrency:
 
 jobs:
   build:
-    # TODO: Choose the appropriate runner for your repository
     # For guidance on runner selection, visit:
     # https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3694231566/GitHub+Actions+Runner+-+GitHub
-    {% if cookiecutter.repository_visibility == "public" -%}
-    runs-on: github-ubuntu-latest-s  # Required for public repositories
-    {% else -%}
-    runs-on: sonar-xs  # Recommended for private/internal repositories
-    {% endif -%}
+    runs-on: sonar-xs
     name: Build
     permissions:
       id-token: write
