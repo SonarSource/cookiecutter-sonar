@@ -5,14 +5,7 @@ on:
 
 jobs:
   cleanup:
-    # Runner selection based on repository visibility:
-    # - Private/internal repositories: sonar-xs
-    # - Public repositories: github-ubuntu-latest-s
-    {% if cookiecutter.repository_visibility == "public" -%}
-    runs-on: github-ubuntu-latest-s
-    {% else -%}
     runs-on: sonar-xs
-    {% endif -%}
     name: Cleanup
     permissions:
       actions: write
