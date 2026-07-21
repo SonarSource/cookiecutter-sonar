@@ -1,0 +1,4 @@
+# python@3.12.1 (from .tool-versions) has no GitHub artifact attestations.
+# Required since mise 2026.x enables attestation verification by default.
+[settings]
+python.github_attestations = false
