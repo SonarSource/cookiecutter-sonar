@@ -87,12 +87,11 @@ def test_github_actions_cloudchecks(cookies):
         assert len(list(workflows_dir.iterdir())) == 1
 
 # Direct tests for post-generation hooks to ensure coverage of new code
-def test_github_workflows_dir_constant():
+def test_github_workflows_dir_constant(monkeypatch):
     """Test the new GITHUB_WORKFLOWS_DIR constant"""
-    import sys
     import os
     hooks_dir = os.path.join(os.path.dirname(__file__), '..', 'hooks')
-    sys.path.insert(0, hooks_dir)
+    monkeypatch.syspath_prepend(hooks_dir)
 
     import post_gen_project
 
@@ -245,12 +244,11 @@ def test_use_pre_commit_function_with_constant():
         finally:
             os.chdir(original_cwd)
 
-def test_main_function_calls_new_function():
+def test_main_function_calls_new_function(monkeypatch):
     """Test that main() calls the new use_github_actions_ci function"""
-    import sys
     import os
     hooks_dir = os.path.join(os.path.dirname(__file__), '..', 'hooks')
-    sys.path.insert(0, hooks_dir)
+    monkeypatch.syspath_prepend(hooks_dir)
 
     import post_gen_project
 
@@ -262,84 +260,77 @@ def test_main_function_calls_new_function():
     assert hasattr(post_gen_project, 'main')
     assert callable(post_gen_project.main)
 
-def test_new_code_lines_directly():
+def test_new_code_lines_directly(monkeypatch):
     """Execute actual hook functions with patched template variables for NEW code coverage"""
-    import sys
     import os
     import tempfile
     from unittest.mock import patch
 
     # Import the actual module for coverage tracking
     hooks_dir = os.path.join(os.path.dirname(__file__), '..', 'hooks')
-    sys.path.insert(0, hooks_dir)
+    monkeypatch.syspath_prepend(hooks_dir)
     import post_gen_project
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        original_cwd = os.getcwd()
-        os.chdir(temp_dir)
+        monkeypatch.chdir(temp_dir)
 
-        try:
-            # Create test environment
-            workflows_dir = os.path.join(temp_dir, '.github', 'workflows')
-            os.makedirs(workflows_dir)
+        # Create test environment
+        workflows_dir = os.path.join(temp_dir, '.github', 'workflows')
+        os.makedirs(workflows_dir)
 
-            # Create files for the NEW function to remove
-            build_yml = os.path.join(workflows_dir, 'build.yml')
-            cleanup_yml = os.path.join(workflows_dir, 'pr-cleanup.yml')
-            dogfooding_yml = os.path.join(workflows_dir, 'unified-dogfooding.yml')
+        # Create files for the NEW function to remove
+        build_yml = os.path.join(workflows_dir, 'build.yml')
+        cleanup_yml = os.path.join(workflows_dir, 'pr-cleanup.yml')
+        dogfooding_yml = os.path.join(workflows_dir, 'unified-dogfooding.yml')
 
-            with open(build_yml, 'w') as f:
-                f.write('build content')
-            with open(cleanup_yml, 'w') as f:
-                f.write('cleanup content')
-            with open(dogfooding_yml, 'w') as f:
-                f.write('dogfooding content')
+        with open(build_yml, 'w') as f:
+            f.write('build content')
+        with open(cleanup_yml, 'w') as f:
+            f.write('cleanup content')
+        with open(dogfooding_yml, 'w') as f:
+            f.write('dogfooding content')
 
-            # Update module constants to use test directory (covers Line 1: GITHUB_WORKFLOWS_DIR)
-            post_gen_project.PROJECT_DIRECTORY = temp_dir
-            post_gen_project.GITHUB_WORKFLOWS_DIR = workflows_dir
+        # Update module constants to use test directory (covers Line 1: GITHUB_WORKFLOWS_DIR)
+        post_gen_project.PROJECT_DIRECTORY = temp_dir
+        post_gen_project.GITHUB_WORKFLOWS_DIR = workflows_dir
 
-            # Read and modify the source to replace template variables
-            hook_source_file = os.path.join(hooks_dir, 'post_gen_project.py')
-            with open(hook_source_file, 'r') as f:
-                source_lines = f.readlines()
+        # Read and modify the source to replace template variables
+        hook_source_file = os.path.join(hooks_dir, 'post_gen_project.py')
+        with open(hook_source_file, 'r') as f:
+            source_lines = f.readlines()
 
-            # Create a temporary Python file with template variables replaced
-            test_hook_file = os.path.join(temp_dir, 'test_post_gen_project.py')
-            with open(test_hook_file, 'w') as f:
-                for line in source_lines:
-                    # Replace template variables for testing
-                    modified_line = line.replace(
-                        "'{{ cookiecutter.use_github_actions_ci }}'", "'no'"
-                    ).replace(
-                        "os.path.realpath(os.path.curdir)", f"'{temp_dir}'"
-                    )
-                    f.write(modified_line)
+        # Create a temporary Python file with template variables replaced
+        test_hook_file = os.path.join(temp_dir, 'test_post_gen_project.py')
+        with open(test_hook_file, 'w') as f:
+            for line in source_lines:
+                # Replace template variables for testing
+                modified_line = line.replace(
+                    "'{{ cookiecutter.use_github_actions_ci }}'", "'no'"
+                ).replace(
+                    "os.path.realpath(os.path.curdir)", f"'{temp_dir}'"
+                )
+                f.write(modified_line)
 
-            # Import and execute the modified module
-            sys.path.insert(0, temp_dir)
-            import test_post_gen_project
+        # Import and execute the modified module
+        monkeypatch.syspath_prepend(temp_dir)
+        import test_post_gen_project
 
-            # Execute the NEW function directly (covers Lines 2-6)
-            test_post_gen_project.use_github_actions_ci()
+        # Execute the NEW function directly (covers Lines 2-6)
+        test_post_gen_project.use_github_actions_ci()
 
-            # Verify NEW code executed
-            assert not os.path.exists(build_yml)
-            assert not os.path.exists(cleanup_yml)
-            assert not os.path.exists(dogfooding_yml)
+        # Verify NEW code executed
+        assert not os.path.exists(build_yml)
+        assert not os.path.exists(cleanup_yml)
+        assert not os.path.exists(dogfooding_yml)
 
-            # Test NEW constant (Line 1)
-            assert '.github/workflows' in test_post_gen_project.GITHUB_WORKFLOWS_DIR
+        # Test NEW constant (Line 1)
+        assert '.github/workflows' in test_post_gen_project.GITHUB_WORKFLOWS_DIR
 
-        finally:
-            os.chdir(original_cwd)
-
-def test_new_main_function_call():
+def test_new_main_function_call(monkeypatch):
     """Test the NEW function call in main() - Line 9 coverage"""
-    import sys
     import os
     hooks_dir = os.path.join(os.path.dirname(__file__), '..', 'hooks')
-    sys.path.insert(0, hooks_dir)
+    monkeypatch.syspath_prepend(hooks_dir)
     import post_gen_project
 
     # Test that the NEW function is called in main (this covers line 9: use_github_actions_ci())
