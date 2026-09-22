@@ -4,21 +4,26 @@ import shutil
 
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 GITHUB_WORKFLOWS_DIR = os.path.join(PROJECT_DIRECTORY, '.github', 'workflows')
+VISIBILITY = '{{ cookiecutter.repository_visibility }}'
 
 def set_security():
-    visibility = '{{ cookiecutter.repository_visibility }}'
-    if visibility == "public":
+    if VISIBILITY == "public":
         os.remove(os.path.join(PROJECT_DIRECTORY, 'SECURITY.md'))
 
 def set_license():
-    visibility = '{{ cookiecutter.repository_visibility }}'
-    if visibility in ("private", "internal"):
+    if VISIBILITY in ("private", "internal"):
         shutil.move(os.path.join(PROJECT_DIRECTORY, 'licenses/sonarsource.txt'), os.path.join(PROJECT_DIRECTORY, 'LICENSE'))
-    elif visibility == "public":
+    elif VISIBILITY == "public":
         shutil.move(os.path.join(PROJECT_DIRECTORY, 'licenses/lgpl-3.0.txt'), os.path.join(PROJECT_DIRECTORY, 'LICENSE'))
     else:
-        raise ValueError(f"Invalid repository visibility: {visibility}")
+        raise ValueError(f"Invalid repository visibility: {VISIBILITY}")
     shutil.rmtree(os.path.join(PROJECT_DIRECTORY, 'licenses'))
+
+def set_notice():
+    if VISIBILITY in ("private", "internal"):
+        os.remove(os.path.join(PROJECT_DIRECTORY, 'NOTICE.txt'))
+    elif VISIBILITY != "public":
+        raise ValueError(f"Invalid repository visibility: {VISIBILITY}")
 
 def use_github_actions_ci():
     _use_github_actions_ci = '{{ cookiecutter.use_github_actions_ci }}'
@@ -47,6 +52,7 @@ def use_pre_commit():
 def main():
     set_security()
     set_license()
+    set_notice()
     use_github_actions_ci()
     use_github_actions_cloudchecks()
     use_release()

@@ -11,6 +11,7 @@ def test_defaults(cookies):
     assert len(list(project_path.iterdir())) == 4
     assert project_path.joinpath('README.md').is_file()
     assert project_path.joinpath('LICENSE').is_file()
+    assert not project_path.joinpath('NOTICE.txt').exists()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
     # GitHub Actions CI enabled by default: build.yml, pr-cleanup.yml, unified-dogfooding.yml = 3 files
     assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 3
@@ -32,10 +33,20 @@ def test_customization(cookies):
     project_path: pathlib.Path = result.project_path
     assert project_path.name == 'Test repository'
     assert project_path.is_dir()
-    assert len(list(project_path.iterdir())) == 5
+    assert len(list(project_path.iterdir())) == 6
     assert "test-team" in project_path.joinpath('.github', 'CODEOWNERS').read_text()
     assert "Test description" in project_path.joinpath('README.md').read_text()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in project_path.joinpath('LICENSE').read_text()
+    assert project_path.joinpath('NOTICE.txt').read_text() == (
+        "Copyright (C) SonarSource Sàrl\n"
+        "mailto:info AT sonarsource DOT com\n\n"
+        "This product includes software developed at\n"
+        "SonarSource (https://sonarsource.com/).\n\n"
+        "See LICENSE.txt file for details of the\n"
+        "applicable license.\n\n"
+        "For further legal information, see\n"
+        "https://sonarsource.com/legal/\n"
+    )
     # When all options enabled: build.yml, pr-cleanup.yml, unified-dogfooding.yml, pre-commit.yml, release.yml, cloud-checks = 6 files
     assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 6
 
@@ -56,12 +67,19 @@ def test_no_github_actions_ci(cookies):
     project_path: pathlib.Path = result.project_path
     assert project_path.name == 'No Actions Repository'
     assert project_path.is_dir()
+    assert not project_path.joinpath('NOTICE.txt').exists()
 
     # When use_github_actions_ci is "no", CI workflow files should be removed by post_gen_project.py
     workflows_dir = project_path.joinpath('.github', 'workflows')
     if workflows_dir.exists():
         assert len(list(workflows_dir.iterdir())) == 0
     # If workflows directory doesn't exist, that's also acceptable (no workflows to create)
+
+def test_internal_repository_does_not_include_notice(cookies):
+    result = cookies.bake(extra_context={"repository_visibility": "internal"})
+
+    assert result.exit_code == 0
+    assert not result.project_path.joinpath('NOTICE.txt').exists()
 
 def test_github_actions_cloudchecks(cookies):
     result = cookies.bake(extra_context={
