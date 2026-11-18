@@ -10,7 +10,11 @@ def test_defaults(cookies):
     assert project_path.is_dir()
     assert len(list(project_path.iterdir())) == 4
     assert project_path.joinpath('README.md').is_file()
-    assert project_path.joinpath('LICENSE').is_file()
+    assert project_path.joinpath('LICENSE').read_text() == (
+        "Copyright (C) SonarSource Sàrl\n"
+        "For more information, see https://sonarsource.com/legal/\n"
+        "mailto:info AT sonarsource DOT com\n"
+    )
     assert not project_path.joinpath('NOTICE.txt').exists()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
     # GitHub Actions CI enabled by default: build.yml, pr-cleanup.yml, unified-dogfooding.yml = 3 files
