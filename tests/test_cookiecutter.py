@@ -8,11 +8,16 @@ def test_defaults(cookies):
     project_path: pathlib.Path = result.project_path
     assert project_path.name == 'A repository'
     assert project_path.is_dir()
-    assert len(list(project_path.iterdir())) == 4
+    assert len(list(project_path.iterdir())) == 6
     assert project_path.joinpath('README.md').is_file()
     assert project_path.joinpath('LICENSE').is_file()
     assert not project_path.joinpath('NOTICE.txt').exists()
     assert project_path.joinpath('.github', 'CODEOWNERS').is_file()
+    assert project_path.joinpath('AGENTS.md').is_file()
+    assert project_path.joinpath('docs', 'index.md').is_file()
+    assert project_path.joinpath('docs', 'documentation-conventions.md').is_file()
+    assert project_path.joinpath('docs', 'adr', 'index.md').is_file()
+    assert len(project_path.joinpath('AGENTS.md').read_text().splitlines()) <= 150
     # GitHub Actions CI enabled by default: build.yml, pr-cleanup.yml, unified-dogfooding.yml = 3 files
     assert len(list(project_path.joinpath('.github', 'workflows').iterdir())) == 3
 
@@ -33,7 +38,7 @@ def test_customization(cookies):
     project_path: pathlib.Path = result.project_path
     assert project_path.name == 'Test repository'
     assert project_path.is_dir()
-    assert len(list(project_path.iterdir())) == 6
+    assert len(list(project_path.iterdir())) == 8
     assert "test-team" in project_path.joinpath('.github', 'CODEOWNERS').read_text()
     assert "Test description" in project_path.joinpath('README.md').read_text()
     assert "GNU LESSER GENERAL PUBLIC LICENSE" in project_path.joinpath('LICENSE').read_text()
